@@ -20,6 +20,9 @@ const SOURCE_LABELS: Record<string, string> = {
   tabler: 'Tabler',
   heroicons: 'Heroicons',
   material: 'Material',
+  bootstrap: 'Bootstrap',
+  phosphor: 'Phosphor',
+  remix: 'Remix',
 };
 
 interface Props extends ShapeSearchCallbacks {

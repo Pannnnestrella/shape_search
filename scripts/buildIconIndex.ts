@@ -20,6 +20,8 @@ const outDir = path.join(root, 'src', 'data', 'icons');
 interface Library {
   source: string;
   dir: string;
+  /** 递归读取子目录（适用于按分类组织 SVG 的图标库） */
+  recursive?: boolean;
   /** 返回 false 则跳过该文件（例如排除 -fill 变体） */
   include?: (file: string) => boolean;
   /** 图标名 → 标签 */
@@ -54,7 +56,35 @@ const libraries: Library[] = [
     dir: nm('@material-symbols', 'svg-400', 'outlined'),
     include: (f) => !f.endsWith('-fill.svg'),
   },
+  {
+    source: 'bootstrap',
+    dir: nm('bootstrap-icons', 'icons'),
+  },
+  {
+    source: 'phosphor',
+    dir: nm('@phosphor-icons', 'core', 'assets', 'regular'),
+  },
+  {
+    source: 'remix',
+    dir: nm('remixicon', 'icons'),
+    recursive: true,
+    // Remix 同时提供 fill/line 版本；线框版本更贴近手绘草图。
+    include: (f) => f.endsWith('-line.svg'),
+  },
 ];
+
+function listSvgFiles(dir: string, recursive = false): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const relative = entry.name;
+    if (entry.isDirectory()) {
+      if (!recursive) return [];
+      return listSvgFiles(path.join(dir, entry.name), true).map((file) =>
+        path.join(relative, file),
+      );
+    }
+    return entry.isFile() && entry.name.endsWith('.svg') ? [relative] : [];
+  });
+}
 
 /** SVG 自然尺寸：优先 width/height 属性，其次 viewBox */
 function naturalSize(svg: string): number {
@@ -118,14 +148,14 @@ async function buildLibrary(lib: Library): Promise<void> {
     console.warn(`[${lib.source}] 未找到 ${lib.dir}，跳过（请先 npm install）`);
     return;
   }
-  const files = readdirSync(lib.dir).filter(
-    (f) => f.endsWith('.svg') && (lib.include?.(f) ?? true),
+  const files = listSvgFiles(lib.dir, lib.recursive).filter(
+    (f) => lib.include?.(f) ?? true,
   );
   console.log(`[${lib.source}] 共 ${files.length} 个图标…`);
 
   let skipped = 0;
   const entries = await mapPool(files, 8, async (file): Promise<IconEntry | null> => {
-    const name = file.replace(/\.svg$/, '');
+    const name = path.basename(file, '.svg');
     const svg = readFileSync(path.join(lib.dir, file), 'utf8').trim();
     try {
       const ink = await rasterizeSvg(svg);

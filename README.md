@@ -2,7 +2,7 @@
 
 轻量级"以画代搜"工具：在画布上随手画出一个形状，系统根据轮廓与几何特征，从图标库中检索并返回外形最相似的图标 / SVG。不依赖大语言模型，纯前端相似度检索。
 
-已接入图标库（共约 10800 个图标）：Lucide、Tabler、Heroicons（outline）、Material Symbols（outlined）。面板内可按库筛选，各库索引独立懒加载。
+已接入 7 个图标库（共约 16000 个图标）：Lucide、Tabler、Heroicons（outline）、Material Symbols（outlined）、Bootstrap Icons、Phosphor Icons（regular）和 Remix Icon（line）。面板内可按库筛选，各库索引独立懒加载。
 
 ## 快速开始
 
