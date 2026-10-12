@@ -1,0 +1,4 @@
+# CUDA PyTorch is installed separately from https://download.pytorch.org/whl/cu128
+transformers==4.57.6
+Pillow>=11.0,<13
+numpy>=2.0,<3

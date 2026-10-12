@@ -1,0 +1,128 @@
+{
+  "scope": "synthetic exact-icon functional smoke check, not a real-sketch quality evaluation",
+  "iconCount": 16003,
+  "model": "facebook/dinov2-small",
+  "revision": "ed25f3a31f01632728cabb09d1542f84ab7b0056",
+  "build": {
+    "elapsedSeconds": 244.52654419990722,
+    "batchSize": 16,
+    "device": "cuda",
+    "precision": "torch.float16",
+    "torch": "2.8.0+cu128",
+    "gpu": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+    "peakAllocatedMiB": 98.365234375,
+    "peakReservedMiB": 130.0
+  },
+  "vectorBytes": 24580736,
+  "repeatedTop10Stable": true,
+  "requests": [
+    {
+      "httpMs": 29.83060001861304,
+      "inferenceAndSearchMs": 14.580500079318881,
+      "peakAllocatedMiB": 54.9501953125,
+      "peakReservedMiB": 60.0,
+      "top10": [
+        "lucide:search",
+        "lucide:circle",
+        "lucide:circle-slash",
+        "lucide:currency",
+        "lucide:bomb",
+        "lucide:ban",
+        "lucide:search-slash",
+        "lucide:message-circle",
+        "lucide:circle-slash-2",
+        "lucide:locate"
+      ]
+    },
+    {
+      "httpMs": 15.241599990986288,
+      "inferenceAndSearchMs": 13.00989999435842,
+      "peakAllocatedMiB": 54.9501953125,
+      "peakReservedMiB": 60.0,
+      "top10": [
+        "lucide:search",
+        "lucide:circle",
+        "lucide:circle-slash",
+        "lucide:currency",
+        "lucide:bomb",
+        "lucide:ban",
+        "lucide:search-slash",
+        "lucide:message-circle",
+        "lucide:circle-slash-2",
+        "lucide:locate"
+      ]
+    },
+    {
+      "httpMs": 15.798300039023161,
+      "inferenceAndSearchMs": 13.250699965283275,
+      "peakAllocatedMiB": 54.9501953125,
+      "peakReservedMiB": 60.0,
+      "top10": [
+        "lucide:search",
+        "lucide:circle",
+        "lucide:circle-slash",
+        "lucide:currency",
+        "lucide:bomb",
+        "lucide:ban",
+        "lucide:search-slash",
+        "lucide:message-circle",
+        "lucide:circle-slash-2",
+        "lucide:locate"
+      ]
+    },
+    {
+      "httpMs": 30.201199930161238,
+      "inferenceAndSearchMs": 13.989500002935529,
+      "peakAllocatedMiB": 54.9501953125,
+      "peakReservedMiB": 60.0,
+      "top10": [
+        "lucide:search",
+        "lucide:circle",
+        "lucide:circle-slash",
+        "lucide:currency",
+        "lucide:bomb",
+        "lucide:ban",
+        "lucide:search-slash",
+        "lucide:message-circle",
+        "lucide:circle-slash-2",
+        "lucide:locate"
+      ]
+    },
+    {
+      "httpMs": 15.97309997305274,
+      "inferenceAndSearchMs": 13.674100046046078,
+      "peakAllocatedMiB": 54.9501953125,
+      "peakReservedMiB": 60.0,
+      "top10": [
+        "lucide:search",
+        "lucide:circle",
+        "lucide:circle-slash",
+        "lucide:currency",
+        "lucide:bomb",
+        "lucide:ban",
+        "lucide:search-slash",
+        "lucide:message-circle",
+        "lucide:circle-slash-2",
+        "lucide:locate"
+      ]
+    },
+    {
+      "httpMs": 30.17739998176694,
+      "inferenceAndSearchMs": 13.41900008264929,
+      "peakAllocatedMiB": 54.9501953125,
+      "peakReservedMiB": 60.0,
+      "top10": [
+        "lucide:search",
+        "lucide:circle",
+        "lucide:circle-slash",
+        "lucide:currency",
+        "lucide:bomb",
+        "lucide:ban",
+        "lucide:search-slash",
+        "lucide:message-circle",
+        "lucide:circle-slash-2",
+        "lucide:locate"
+      ]
+    }
+  ]
+}

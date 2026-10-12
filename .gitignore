@@ -2,3 +2,10 @@ node_modules
 dist
 *.local
 .DS_Store
+evaluation/catalog.json
+.venv/
+models/
+server/artifacts/
+__pycache__/
+test-results/
+playwright-report/

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ShapeSearchCallbacks, ShapeSearchResult } from '../types';
 import { imageDataToInk } from '../services/preprocess';
 import { extractFeatures } from '../services/shapeFeatures';
+import { extractGeometry } from '../services/geometry';
+import { searchWithModel } from '../services/modelSearch';
 import { availableSources, loadIconIndex, searchIcons } from '../services/iconSearch';
 import {
   SketchCanvas,
@@ -60,6 +62,9 @@ export function ShapeSearchPanel({
   const [elapsed, setElapsed] = useState<number | null>(null);
   const [iconCount, setIconCount] = useState<number | null>(null);
   const [searching, setSearching] = useState(false);
+  const [searchMode, setSearchMode] = useState<'model' | 'geometry' | 'baseline'>('model');
+  const requestRef = useRef(0);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     loadIconIndex(enabledSources)
@@ -68,6 +73,10 @@ export function ShapeSearchPanel({
   }, [enabledSources]);
 
   const doSearch = useCallback(async () => {
+    const request = ++requestRef.current;
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
     const img = canvasRef.current?.exportImageData();
     if (!img) return;
     const { ink, width, height } = imageDataToInk(img);
@@ -76,6 +85,7 @@ export function ShapeSearchPanel({
       setResults([]);
       setElapsed(null);
       setStatus('画布是空的，先画一个形状再搜索');
+      setSearching(false);
       return;
     }
     onSearch?.({ type: 'drawing', image: img, width, height });
@@ -83,16 +93,30 @@ export function ShapeSearchPanel({
     try {
       const t0 = performance.now();
       const icons = await loadIconIndex(enabledSources);
-      const found = searchIcons(feature, icons, maxResults);
+      if (request !== requestRef.current) return;
+      const shape = searchMode !== 'baseline' ? extractGeometry(ink, width, height) ?? undefined : undefined;
+      let found = searchIcons(feature, icons, maxResults, shape);
+      let message = '';
+      if (searchMode === 'model' && shape && enabledSources.length) {
+        const timeout = window.setTimeout(() => controller.abort(), 15000);
+        try {
+          found = await searchWithModel(img, feature, shape, icons, enabledSources, maxResults, controller.signal);
+        } catch {
+          if (request !== requestRef.current) return;
+          message = '本地模型未就绪，已使用轮廓精排';
+        } finally { window.clearTimeout(timeout); }
+      }
+      if (request !== requestRef.current) return;
       setElapsed(performance.now() - t0);
       setResults(found);
-      setStatus('');
+      setStatus(message);
     } catch {
+      if (request !== requestRef.current) return;
       setStatus('搜索失败：图标索引不可用');
     } finally {
-      setSearching(false);
+      if (request === requestRef.current) setSearching(false);
     }
-  }, [maxResults, onSearch, enabledSources]);
+  }, [maxResults, onSearch, enabledSources, searchMode]);
 
   const toggleSource = useCallback(
     (source: string) => {
@@ -107,7 +131,7 @@ export function ShapeSearchPanel({
   useEffect(() => {
     if (!history.isEmpty) doSearch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabledSources]);
+  }, [enabledSources, searchMode]);
 
   const handleDrawEnd = useCallback(() => {
     if (!autoSearch) return;
@@ -115,7 +139,7 @@ export function ShapeSearchPanel({
     autoTimerRef.current = window.setTimeout(doSearch, AUTO_SEARCH_DELAY);
   }, [autoSearch, doSearch]);
 
-  useEffect(() => () => window.clearTimeout(autoTimerRef.current), []);
+  useEffect(() => () => { window.clearTimeout(autoTimerRef.current); abortRef.current?.abort(); ++requestRef.current; }, []);
 
   const handleSelect = useCallback(
     (result: ShapeSearchResult) => {
@@ -206,6 +230,10 @@ export function ShapeSearchPanel({
           disabled={history.isEmpty}
           onClick={() => {
             canvasRef.current?.clear();
+            ++requestRef.current;
+            abortRef.current?.abort();
+            window.clearTimeout(autoTimerRef.current);
+            setSearching(false);
             setResults([]);
             setSelected(null);
             setElapsed(null);
@@ -224,6 +252,26 @@ export function ShapeSearchPanel({
             onChange={(e) => setBrushSize(Number(e.target.value))}
           />
         </label>
+        <button type="button" disabled={history.isEmpty} onClick={() => {
+          const image = canvasRef.current?.exportImageData();
+          if (!image) return;
+          const canvas = document.createElement('canvas');
+          canvas.width = image.width;
+          canvas.height = image.height;
+          const context = canvas.getContext('2d');
+          if (!context) return;
+          context.putImageData(image, 0, 0);
+          canvas.toBlob((blob) => {
+            if (!blob) return;
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `sketch-${Date.now()}.png`;
+            link.click();
+            window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+            setStatus('已导出草图 PNG，可用于评测标注');
+          }, 'image/png');
+        }}>导出草图</button>
       </div>
 
       <SketchCanvas
@@ -237,6 +285,11 @@ export function ShapeSearchPanel({
       />
 
       <div className="search-controls">
+        <select aria-label="检索方式" value={searchMode} onChange={(event) => setSearchMode(event.target.value as typeof searchMode)}>
+          <option value="model">模型 + 轮廓</option>
+          <option value="geometry">轮廓精排</option>
+          <option value="baseline">基础匹配</option>
+        </select>
         <button
           type="button"
           className="search-button"

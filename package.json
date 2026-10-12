@@ -7,7 +7,17 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "build:icons": "tsx scripts/buildIconIndex.ts"
+    "build:icons": "tsx scripts/buildIconIndex.ts",
+    "build:geometry": "tsx scripts/buildGeometryIndex.ts",
+    "build:model-inputs": "tsx scripts/buildModelInputs.ts",
+    "model:download": ".venv\\Scripts\\python.exe server/manage.py download",
+    "model:build": ".venv\\Scripts\\python.exe server/manage.py build --device cuda",
+    "model:serve": ".venv\\Scripts\\python.exe server/app.py --device cuda",
+    "eval:catalog": "tsx scripts/evaluation/run.ts --catalog",
+    "eval:baseline": "tsx scripts/evaluation/run.ts",
+    "eval:test": "tsx --test scripts/evaluation/*.test.ts",
+    "test:browser": "npm run build && playwright test",
+    "test:model": ".venv\\Scripts\\python.exe -m unittest discover -s server -p test_*.py"
   },
   "dependencies": {
     "react": "^19.0.0",
@@ -16,6 +26,7 @@
   "devDependencies": {
     "@material-symbols/svg-400": "^0.45.8",
     "@phosphor-icons/core": "^2.1.1",
+    "@playwright/test": "^1.64.0",
     "@tabler/icons": "^3.45.0",
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
